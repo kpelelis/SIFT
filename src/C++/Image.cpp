@@ -1,45 +1,55 @@
-#include "color.h"
 #include "Image.h"
-#include <fstream>
-#include "Logger.h"
+#include <iostream>
+#include <cstring>
 
-Image::Image(char * filename)
+namespace imaging 
 {
-	Logger::Instance()->LOG_MESSAGE("Loading Image... " + std::string(filename));
-	p_filename = filename;
-}
 
-Image::~Image()
-{
-	UnloadImage();
-}
-
-void Image::LoadImage()
-{
-	std::ifstream infile;
-	infile.open(p_filename);
-	if(!infile.is_open())
-		Logger::Instance()->LOG_WARNING("File " + std::string(p_filename) + " was not opened");
-	infile >> p_width >> p_height;
-	p_pixel_map = new RGBColor[p_height*p_width];
-	for (int i = 0; i < p_height * p_width; ++i)
-	{
-		byte r,g,b;
-		infile >> r >> g >> b;
-		p_pixel_map[i] = new RGBColor(r,g,b);
+//-------------------------------- Image class implementation goes here ---------------------------------------------------
+	
+	Image::Image(unsigned int width, unsigned int height, const Component * data_ptr){
+		_width = width;
+		_height = height;
+		_buffer = new Component[3*width*height];
+		std::memcpy(_buffer,data_ptr,3*_width * _height); 
 	}
-	for (int i = 0; i < p_height * p_width; ++i)
+
+	Image::Image(unsigned int width, unsigned int height){
+		_width = width;
+		_height = height;
+		_buffer = new Component[3*width*height];
+	}
+
+	Image::Image( const Image &src){
+		_width = src.getWidth();
+		_height = src.getHeight();
+		_buffer = new Component[3 * _width * _height];
+		std::memcpy(_buffer,src.getRawDataPtr(),3*_width * _height); 
+	}
+
+	Image::~Image(){
+		delete [] _buffer;
+	}
+
+	void Image::setPixel(unsigned int x , unsigned int y, Color value){
+		Component red 	= value.x;
+		Component green = value.y;
+		Component blue 	= value.z; 
+		_buffer[3*((y * _width) + x)] 	= red;
+		_buffer[3*((y * _width) + x) + 1] = green;
+		_buffer[3*((y * _width) + x) + 2] = blue;
+	}
+		
+	Color Image::getPixel(unsigned int x, unsigned int y) const 
 	{
-		Logger::Instance()->LOG_MESSAGE("Image Data");
-	}	
-}
+		Component red 	= _buffer[3*((y * _width) + x)];
+		Component green = _buffer[3*((y * _width) + x) + 1];
+		Component blue 	= _buffer[3*((y * _width) + x) + 2];
+		return Color(red, green, blue);
+	}
 
-void Image::UnloadImage()
-{
-	delete p_pixel_map;
-}
-
-RGBColor * Image::getPixels()
-{
-	return p_pixel_map;
-}
+	void Image::setData(const Component * & data_ptr)
+	{
+		std::memcpy(_buffer, data_ptr, 3 * _width * _height);
+	}
+} // namespace imaging

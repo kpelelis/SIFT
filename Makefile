@@ -1,12 +1,12 @@
 CC := g++ # This is the main compiler
-SRCDIR := src/C++
+SRCDIR := src/C++/
 BUILDDIR := build
-TARGET := bin/SIFTalgo
+TARGET := bin/SIFTApp
  
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -g -Wall
+CFLAGS := -g -Wall -std=c++0x
 #LIB := -pthread -lmongoclient -L lib -lboost_thread-mt -lboost_filesystem-mt -lboost_system-mt
 INC := -I include
 
@@ -23,8 +23,8 @@ clean:
 	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
 
 # # Tests
-# tester:
-#   $(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
+TestApp:
+	$(CC) $(CFLAGS) test/TestApp.cpp $(INC) $(LIB) -o bin/TestApp
 
 # # Spikes
 # ticket:

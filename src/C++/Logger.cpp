@@ -1,27 +1,104 @@
+//------------------------------------------------------------
+//
+// C++ course assignment code 
+//
+// G. Papaioannou, 2013
+//
+//
+
 #include "Logger.h"
 #include <iostream>
-Logger * Logger::p_instance = 0;
+#include <fstream>
+#include <time.h>
+#include <typeinfo>
 
-Logger * Logger::Instance()
+
+//---------------------- Helper functions ----------------------------------------------------
+
+// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+// Code obtained from: http://stackoverflow.com/questions/997946/c-get-current-time-and-date
+//
+const std::string currentDateTime() {
+    time_t     now = time(0);
+    struct tm * tstruct;
+    char       buf[80];
+  	tstruct = localtime (&now);
+    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+    // for more information about date/time format
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", tstruct);
+    return buf;
+}
+
+
+namespace imaging
 {
-	if(p_instance == 0)
+
+//----------------------- Logger class implementation -----------------------------------------
+
+	Logger * Logger::logger_instance = 0;
+	
+	void Logger::destroy()
 	{
-		p_instance = new Logger();
+		if (logger_instance != 0)
+		{
+			delete logger_instance;
+			logger_instance = 0;
+		}
 	}
-	return p_instance;
-}
 
-void Logger::LOG_MESSAGE(const std::string& msg)
-{
-	std::cout << msg << '\n';
-}
+	Logger * Logger::request()
+	{
+		return logger_instance;
+	}
 
-void Logger::LOG_WARNING(const std::string& warn) 
-{ 
-	LOG_MESSAGE("[WARNING!] " + warn); 
-}
+	void Logger::create(std::string logfile)
+	{
+		if (logger_instance!=0)
+			return;
+		else
+		{
+			logger_instance = new Logger(logfile);
+			std::ofstream out(logfile, std::ios::out );
+			out << "Log file created on " << currentDateTime() << std::endl;
+			out.close();
+		}
+	}
 
-void Logger::LOG_ERROR(const std::string& err)
-{ 
-	LOG_MESSAGE("[ERROR!] " + err); 	
-}
+	void Logger::write(std::string entry)
+	{
+		std::ofstream out(log_filename, std::ios::out | std::ios::app);
+		out << currentDateTime() << " - " << entry << std::endl;
+		out.close();
+	}
+
+
+//----------------------- Logged class implementation -----------------------------------------
+
+
+	Logged::Logged()
+	{
+		logger = Logger::request();
+	}
+
+	void Logged::addLogEntry(std::string entry)
+	{
+		if (!logger) // for possible delayed logger creation
+			logger = Logger::request();
+		
+		if (logger)
+			logger->write(typeid(*this).name() + std::string(" : ") + entry);
+	}
+	
+
+	void createLogger(std::string logfile) 
+	{
+		Logger::create(logfile);
+	}
+
+	void destroyLogger()
+	{
+		Logger::destroy();
+	}
+
+
+} // namespace imaging
