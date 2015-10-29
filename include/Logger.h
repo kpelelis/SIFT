@@ -2,6 +2,7 @@
 #define _LOGGER
 
 #include <string>
+#define SSTR( x ) dynamic_cast< std::ostringstream & >(( std::ostringstream().seekp( 0, std::ios_base::cur ) << x )).str()
 
 namespace imaging
 {

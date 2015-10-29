@@ -77,7 +77,11 @@ namespace imaging
 		{
 
 			for(unsigned int i = 0; i < 3 * lhs._width * lhs._height; i++)
-				lhs._buffer[i] = lhs._buffer[i] + rhs._buffer[i];
+			{
+				Component new_comp = lhs._buffer[i] + rhs._buffer[i];
+				if(new_comp > 0xff) new_comp = 0xff;
+					lhs._buffer[i] = new_comp;
+			}
 			return lhs;
 		}
 
@@ -85,7 +89,9 @@ namespace imaging
 		{
 			for(unsigned int i = 0; i < 3 * lhs._width * lhs._height; i++)
 			{
-				lhs._buffer[i] = lhs._buffer[i] - rhs._buffer[i];
+				Component new_comp = lhs._buffer[i] - rhs._buffer[i];
+				if(new_comp < 0) new_comp = 0;
+				lhs._buffer[i] = new_comp;
 			}
 			return lhs;
 		}

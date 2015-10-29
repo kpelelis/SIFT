@@ -1,11 +1,3 @@
-//------------------------------------------------------------
-//
-// C++ course assignment code 
-//
-// G. Papaioannou, 2013
-//
-//
-
 #include "Logger.h"
 #include <iostream>
 #include <fstream>

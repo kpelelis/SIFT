@@ -2,30 +2,32 @@
 * @Author: plkost
 * @Date:   2015-10-23 16:02:02
 * @Last Modified by:   plkost
-* @Last Modified time: 2015-10-27 21:17:14
+* @Last Modified time: 2015-10-29 03:35:36
 */
-
 #include "Filter.h"
 #include <iostream>
 #include <cstring>
+#include <sstream>
+#include <string>
 
 namespace imaging
 {
-	Filter::Filter(float * kernel, int filter_width, int filter_height, std::string name) : _name(name)
+	Filter::Filter(double * kernel, int filter_width, int filter_height, double bias ,std::string name) : _name(name)
 	{
-		_kernel_buffer 	= new float[filter_width * filter_height];
-		std::memcpy(_kernel_buffer, kernel, filter_width * filter_height * sizeof(float));
+		_kernel_buffer 	= new double[filter_width * filter_height];
+		std::memcpy(_kernel_buffer, kernel, filter_width * filter_height * sizeof(double));
 		_filter_width	= filter_width;
 		_filter_height  = filter_height;
+		_bias = bias;
 	}
 
 	Filter::Filter(const Filter& irhs)
 	{
-		float * irhs_raw = irhs.getRawFilterPtr();
+		double * irhs_raw = irhs.getRawFilterPtr();
 		_filter_width   = irhs.getWidth(); 
 		_filter_height  = irhs.getHeight();
-		_kernel_buffer  = new float[_filter_height * _filter_width];
-		memcpy(_kernel_buffer, irhs_raw, _filter_height * _filter_width * sizeof(float));
+		_kernel_buffer  = new double[_filter_height * _filter_width];
+		memcpy(_kernel_buffer, irhs_raw, _filter_height * _filter_width * sizeof(double));
 	}
 
 	Filter::Filter()
@@ -40,51 +42,52 @@ namespace imaging
 		addLogEntry("Filter Deleted");
 	}
 
-	void Filter::setData(const float * & data)
+	void Filter::setData(const double * & data)
 	{
-		if(!_kernel_buffer) _kernel_buffer = new float[_filter_width * _filter_height];
-		memcpy(_kernel_buffer, data, _filter_width * _filter_height * sizeof(float));
+		if(!_kernel_buffer) _kernel_buffer = new double[_filter_width * _filter_height];
+		memcpy(_kernel_buffer, data, _filter_width * _filter_height * sizeof(double));
 	}
 
 	Image Filter::operator>>(const Image &irhs)
 	{
-		addLogEntry("Applying filter : " + _name);
+		addLogEntry("Applying filter : " + _name + " " + SSTR(_filter_width) + " " + SSTR(_filter_height));
 		int image_width = irhs.getWidth();
 		int image_height = irhs.getHeight();
 		int midx = _filter_width * 0.5f;
 		int midy = _filter_height * 0.5f;
-
 		Image ret  = Image(irhs);
+
+		double _factor = 1.f;
+		// for(int i = 0; i < _filter_width * _filter_height; i++) _factor += _kernel_buffer[i];
+		// if(_factor == 0.f) _factor = 1.f;
+		// _factor = 1.f/_factor;
+		
 		for(int y = 0; y < image_height; y++)
 		{
 			for(int x = 0; x < image_width; x++)
 			{
-				float r = 0, g = 0, b = 0;
-				int y_low  = y >= midy ? 0 : midy - y;
-				int x_low  = x >= midx ? 0 : midx - x;
-				int y_high = y < image_height - midy ? _filter_height : y - image_height + 1 + midy;
-				int x_high = x < image_width  - midx ? _filter_width : x - image_width + 1 + midx;
-				std::cout << y_low << " " << y_high << std::endl;
-				for(int j = y_low; j < y_high; j++)
+				double r = 0.f, g = 0.f, b = 0.f;
+
+				for(int fx = 0; fx < _filter_width ; fx++)
 				{
-					int yoffset = j == midy ? 0 :
-								  j >  midy ? j : -j;
 
-					for(int i = x_low; i < x_high ; i++)
+					for(int fy = 0; fy < _filter_height; fy++)
 					{
-						int xoffset = i == midx ? 0 :
-									  i >  midx ? i : -i;
-
-						Color c = irhs.getPixel(x + xoffset, y + yoffset);
-						r += c.x;
-						g += c.y;
-						b += c.z;
+						int xoffset = (x - midx + fx);
+						int yoffset = (y - midy + fy);
+						if(OutOfBounds(xoffset, yoffset, image_width, image_height)) continue;
+						double f = _kernel_buffer[(fy * _filter_width) + fx];
+						Color c = irhs.getPixel(xoffset,yoffset);
+						r += f*double(c.x);
+						g += f*double(c.y);
+						b += f*double(c.z);
 					}
 				}
-				r = r/9.f;
-				g = g/9.f;
-				b = b/9.f;
-				ret.setPixel(x,y, Color((Component) r,(Component) g,(Component) b));
+
+				r = MIN(MAX(r * _factor + _bias, 0), 255);
+				g = MIN(MAX(g * _factor + _bias, 0), 255);
+				b = MIN(MAX(b * _factor + _bias, 0), 255);
+				ret.setPixel(x,y, Color(round(r), round(g), round(b)));
 			}
 		}
 		return ret;

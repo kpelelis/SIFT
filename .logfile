@@ -1,5 +1,8 @@
-Log file created on 2015-10-27.21:17:02
-2015-10-27.21:17:02 - N7imaging12BitmapReaderE : Image src/SharedData/main_pipesaved succefully!
-2015-10-27.21:17:02 - N7imaging6FilterE : Applying filter : Median
-2015-10-27.21:17:02 - N7imaging6FilterE : Deleting Filter Median
-2015-10-27.21:17:02 - N7imaging6FilterE : Filter Deleted
+Log file created on 2015-10-29.03:39:43
+2015-10-29.03:39:43 - N7imaging12BitmapReaderE : Image src/SharedData/main_pipesaved succefully!
+2015-10-29.03:39:43 - N7imaging6FilterE : Applying filter : Blur 5 5
+2015-10-29.03:39:43 - N7imaging6FilterE : Applying filter : Blur 5 5
+2015-10-29.03:39:43 - N7imaging6FilterE : Deleting Filter Blur
+2015-10-29.03:39:43 - N7imaging6FilterE : Filter Deleted
+2015-10-29.03:39:43 - N7imaging6FilterE : Deleting Filter Blur
+2015-10-29.03:39:43 - N7imaging6FilterE : Filter Deleted

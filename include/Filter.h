@@ -10,15 +10,15 @@ namespace imaging
 	{
 
 	public:
-		float * getRawFilterPtr() const { return _kernel_buffer; }
+		double * getRawFilterPtr() const { return _kernel_buffer; }
 		const int getWidth() const { return _filter_width; }
 		const int getHeight() const { return _filter_height; }
 
-		float get_value(int x, int y) const { return _kernel_buffer[y * _filter_width + x]; } ;
+		double get_value(int x, int y) const { return _kernel_buffer[y * _filter_width + x]; } ;
 
-		void setData(const float * & data);
+		void setData(const double * & data);
 
-		Filter(float * kernel, int filter_width, int filter_height, std::string name);
+		Filter(double * kernel, int filter_width, int filter_height, double bias, std::string name);
 		Filter(const Filter& src);
 		Filter();
 
@@ -29,9 +29,13 @@ namespace imaging
 	protected:
 		const std::string _name;
 		
-		float * _kernel_buffer;
+		bool OutOfBounds(int x, int y, int xm, int ym) { return x < 0 || x >= xm || y < 0 || y >= ym;}
+
+		double * _kernel_buffer;
 		int _filter_width;
 		int _filter_height;
+
+		double _bias;
 	};
 }
 #endif

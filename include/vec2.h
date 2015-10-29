@@ -1,5 +1,3 @@
-#pragma once
-
 #include <math.h>
 
 #define COORD_EPSILON 10e-6
