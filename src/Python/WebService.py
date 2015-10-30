@@ -33,5 +33,5 @@ def read_and_output(File):
 					
 		img.save(PIPE_DIR + "out.png")
 
-# open_and_write_pipe("cballs.png")
+# open_and_write_pipe("image2.jpg")
 read_and_output("new_img")

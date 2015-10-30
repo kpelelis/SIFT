@@ -24,6 +24,7 @@ namespace imaging
 
 		Image operator >>(const Image &irhs);
 
+		static Image Laplacian_Scale(const Image& src, float sigma);
 		~Filter();
 
 	protected:

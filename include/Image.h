@@ -96,6 +96,8 @@ namespace imaging
 			return lhs;
 		}
 
+		void DrawCircle(int x, int y, float radius);
+		void DrawSquare(int x, int y, float radius);
 
 		// constructors and destructor
 		Image(unsigned int _width, unsigned int _heigth);
